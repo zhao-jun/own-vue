@@ -6,12 +6,16 @@ const Observer = (obj, fn) => {
     const dep = new Dep()
     return new Proxy(obj, {
         get: function (target, key, receiver) {
+            // 如果订阅者存在，为属性订阅
+            // dom渲染时候触发
             if (Dep.target) {
-                
+                dep.addSub(Dep.target)
             }
             return Reflect.get(target, key, receiver);
         },
         set: function (target, key, value, receiver) {
+            console.log(target)
+            console.log(dep)
             // 触发订阅
             dep.notify()
             return Reflect.set(target, key, observe(value), receiver);

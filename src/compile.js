@@ -1,3 +1,5 @@
+import Watcher from "./watcher";
+
 // 指令解析器Compile，根据数据来渲染视图
 export default class Compile {
     constructor (vm) {
@@ -13,14 +15,65 @@ export default class Compile {
         return (attrs = {}, ...childrens) => {
             // 创建节点
             this._elem = document.createElement(tagName)
-            // 遍历添加属性
-            Object.keys(attrs).forEach(attr => this._elem.setAttribute(attr, attrs[attr]))
-            // 添加文本，使用createTextNode而不是innerHTML避免注入
-            childrens.forEach(children => {
-                const child = typeof(children) === 'string' ? document.createTextNode(children) : null
-                this._elem.appendChild(child)
-            })
+            
+            this._attrs = attrs
+            this._childrens = childrens
+
+            // 将标签和属性分开添加
+            this._bindAttrs()
+            this._addChildrens()
+
             return this._elem
         }
+    }
+
+    // 绑定属性
+    _bindAttrs () {
+        const {_attrs, _elem} = this
+        Object.keys(_attrs).forEach(attr =>{
+            if (attr.includes('@')) {
+            } else {
+                _elem.setAttribute(attr, _attrs[attr])
+            }
+        })
+    }
+
+    // 添加子节点
+    _addChildrens () {
+        const {_childrens, _elem} = this
+        _childrens.forEach(children => {
+            let child
+            switch(typeof children) {
+                case 'string':
+                    // 添加文本，使用createTextNode而不是innerHTML避免注入
+                    child = document.createTextNode(children)
+                    break
+                default:
+                    child = children
+            }
+            _elem.appendChild(child)
+        })
+    }
+
+    compileUtil () {
+        bind = (node, vm, exp, type) => {
+            const update = updater[type]
+            let val = this.getVal(vm, exp)
+
+            update && update(node, val)
+
+        }
+    }
+}
+
+const updater = {
+    text (node, value = '') {
+        node.textContent = value
+    },
+    model (node, value = '') {
+        node.value = value
+    },
+    html (node, value = '') {
+        node.innerHTML = value
     }
 }

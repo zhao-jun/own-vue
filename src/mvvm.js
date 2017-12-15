@@ -1,6 +1,8 @@
 import Watcher from './watcher'
 import {observe} from './observer'
 import Compile from './compile'
+import {foreach} from './util'
+import Dep from './dep'
 
 export default class MVVM {
     constructor (config) {
@@ -10,7 +12,9 @@ export default class MVVM {
         this._initData(config.data)
         this._initComputed() 
         this._bindVM()  
-        this._appendDom()     
+        this._appendDom()    
+        
+        return this._vm
     }
     // 数据深度监听
     _initData (data) {
@@ -27,12 +31,21 @@ export default class MVVM {
                     return Reflect.set(this._data, key, value)
                 }
                 return Reflect.set(target, key, value)
-            } 
+            }
         }) 
     }
 
     _initComputed () {
-
+        const {_config, _vm} = this;
+        this._computed = {}
+        foreach(_config.computed, (key) => {
+            // 将计算的值放入)computed
+            this._computed[key] = _config.computed[key].call(_vm)
+            // 第三个参数为cb，通知时触发
+            new Watcher(_vm, _config.computed[key], val => this._computed[key] = val)
+        })
+        console.log(this._computed['changeMsg'])
+        console.log(Dep.target)
     }
 
     _appendDom () {
