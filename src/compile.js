@@ -40,13 +40,20 @@ export default class Compile {
 
     // 添加子节点
     _addChildrens () {
-        const {_childrens, _elem} = this
+        const {_childrens, _elem, _vm} = this
         _childrens.forEach(children => {
             let child
             switch(typeof children) {
                 case 'string':
                     // 添加文本，使用createTextNode而不是innerHTML避免注入
-                    child = document.createTextNode(children)
+                    // 文本可以是变量或者是字符串，此处应该增加区分
+                    child = document.createTextNode('')
+                    compileUtil.text(child, _vm, () => children)
+                    // child = document.createTextNode(children)
+                    break
+                case 'function':
+                    child = document.createTextNode('')
+                    compileUtil.text(child, _vm, children)
                     break
                 default:
                     child = children
@@ -54,15 +61,26 @@ export default class Compile {
             _elem.appendChild(child)
         })
     }
+}
 
-    compileUtil () {
-        bind = (node, vm, exp, type) => {
-            const update = updater[type]
-            let val = this.getVal(vm, exp)
+// 绑定watcher
+const compileUtil = {
+    bind (node, vm, exp, type) {
+        const update = updater[type]
 
-            update && update(node, val)
-
-        }
+        update && update(node, this.getVal(vm, exp))
+        console.log('watch前')
+        new Watcher(vm, exp, value => update && update(node, value))
+        console.log('watch后')        
+    },
+    text (node, vm, exp) {
+        this.bind(node, vm, exp, 'text')
+    },
+    html (node, vm, exp) {
+        this.bind(node, vm, exp, 'html')            
+    },
+    getVal (vm, exp) {
+        return exp.call(vm)
     }
 }
 

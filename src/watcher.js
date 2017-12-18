@@ -22,6 +22,7 @@ export default class Watcher {
     }
     run () {
         const val =this.get()
+        console.log('回调', this.exp, this.vm.changeMsg)
         this.cb.call(this.vm, val, this.value)
         this.value = val
     }

@@ -21,29 +21,20 @@ const vm = new MVVM({
         // 文本节点放在外面，这样可以和dom节点排序
         return createElement.div({
                 class: 'container',
-            }, this.changeMsg, createElement.p({
+            }, () => this.changeMsg, createElement.p({
                 class: 'inner'
-            }, this.text, createElement.input({
-                value: this.value
+            }, () => this.msg, createElement.input({
+                value: this.msg
             }))
         )
     }
 })
 
-console.log(vm)
-// setInterval(_ => {
-//   vm.msg = 'hello world'
-// }, 5000)
+setTimeout(_ => {
+  vm.msg = 'hello world' + new Date()
+}, 1000)
 
 // let obj = observe({a: 1})
 // obj.a = 2
-
-// setTimeout(function () {
-//     console.log('three');
-// }, 0);
-  
-// Promise.resolve().then(function () {
-//     console.log('two');
-// });
 
 // console.log('one');

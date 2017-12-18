@@ -7,18 +7,18 @@ const Observer = (obj, fn) => {
     return new Proxy(obj, {
         get: function (target, key, receiver) {
             // 如果订阅者存在，为属性订阅
-            // dom渲染时候触发
+            // 引用data中属性的时候触发
             if (Dep.target) {
-                dep.addSub(Dep.target)
+                dep.addSub(key, Dep.target)
             }
             return Reflect.get(target, key, receiver);
         },
         set: function (target, key, value, receiver) {
-            console.log(target)
-            console.log(dep)
+            // !important 因为先保证改变，然后再触发订阅
+            const res = Reflect.set(target, key, observe(value), receiver)
             // 触发订阅
-            dep.notify()
-            return Reflect.set(target, key, observe(value), receiver);
+            dep.notify(key)
+            return res;
         }
     });
 }

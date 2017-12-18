@@ -23,9 +23,9 @@ export default class MVVM {
     // 将_vm与data绑定，对this进行代理
     _initVM () {
         this._vm = new Proxy(this, {
-            get: (target, key, receiver) => (
-                this[key] || this._data[key] || this._computed[key]
-            ),  
+            get: (target, key, receiver) => {
+                return this[key] || this._data[key] || this._computed[key]
+            },  
             set: (target, key, value, receiver) => {
                 if (!this[key]) {
                     return Reflect.set(this._data, key, value)
@@ -41,11 +41,9 @@ export default class MVVM {
         foreach(_config.computed, (key) => {
             // 将计算的值放入)computed
             this._computed[key] = _config.computed[key].call(_vm)
-            // 第三个参数为cb，通知时触发
+            // 第三个参数为cb，通知时触发，触发后计算响应变化
             new Watcher(_vm, _config.computed[key], val => this._computed[key] = val)
         })
-        console.log(this._computed['changeMsg'])
-        console.log(Dep.target)
     }
 
     _appendDom () {
