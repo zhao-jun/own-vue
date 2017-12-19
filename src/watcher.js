@@ -10,11 +10,16 @@ export default class Watcher {
     }
     // 实例化的时候修改消息订阅器的target
     get () {
-        const fn = this.exp
+        const exp = this.exp
         // 当前订阅者指向自己，Dep.target即为一个订阅者watcher
         Dep.target = this;      
         // 将结果添加到value
-        return fn.call(this.vm)
+        if (typeof exp === 'function') {
+            return exp.call(this.vm)
+        } else if (typeof exp === 'string') {
+            return this.vm[exp]
+        }
+
     }
     // 收到通知，更新
     update () {
@@ -22,7 +27,7 @@ export default class Watcher {
     }
     run () {
         const val =this.get()
-        console.log('回调', this.exp, this.vm.changeMsg)
+        console.log('回调', val, this.exp, this.vm.changeMsg)
         this.cb.call(this.vm, val, this.value)
         this.value = val
     }

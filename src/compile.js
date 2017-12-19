@@ -30,10 +30,13 @@ export default class Compile {
     // 绑定属性
     _bindAttrs () {
         const {_attrs, _elem} = this
+        console.log(_attrs)
         Object.keys(_attrs).forEach(attr =>{
             if (attr.includes('@')) {
+            } else if (attr.includes('-')) {
+                this._bindDirectives(attr, _elem)                
             } else {
-                _elem.setAttribute(attr, _attrs[attr])
+                _elem.setAttribute(attr, _attrs[attr])                
             }
         })
     }
@@ -56,12 +59,21 @@ export default class Compile {
                     compileUtil.text(child, _vm, children)
                     break
                 default:
+                    console.log('default')
                     child = children
             }
             _elem.appendChild(child)
         })
     }
+    _bindDirectives (attr, _elem) {
+        const {_attrs, _vm} = this
+        const exp = _attrs[attr]
+        const type = attr.slice(1)
+        console.log(exp)
+        compileUtil[type](_elem, _vm, exp)
+    }
 }
+
 
 // 绑定watcher
 const compileUtil = {
@@ -69,9 +81,7 @@ const compileUtil = {
         const update = updater[type]
 
         update && update(node, this.getVal(vm, exp))
-        console.log('watch前')
         new Watcher(vm, exp, value => update && update(node, value))
-        console.log('watch后')        
     },
     text (node, vm, exp) {
         this.bind(node, vm, exp, 'text')
@@ -79,8 +89,15 @@ const compileUtil = {
     html (node, vm, exp) {
         this.bind(node, vm, exp, 'html')            
     },
+    model (node, vm, exp) {
+        this.bind(node, vm, exp, 'model')            
+    },
     getVal (vm, exp) {
-        return exp.call(vm)
+        if (typeof exp === 'function') {
+            return exp.call(vm)
+        } else if (typeof exp === 'string') {
+            return vm[exp]
+        }
     }
 }
 

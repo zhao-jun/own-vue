@@ -14,13 +14,16 @@ export default class Dep {
             // 引用地址相同，所以可以直接操作数组
             // 用set，避免重复订阅
             existSub.add(sub)
+            // existSub.push(sub)
         } else {
             this.subs.set(key, new Set([sub]))
+            // this.subs.set(key, [sub])
         }
-        console.log('消息订阅器', this.subs)
     }
     // 通知所有订阅者
     notify (key) {
-        this.subs.get(key).forEach(sub => sub.update())
+        this.subs.get(key).forEach(sub => {
+            sub.update()
+        })
     }
 }
