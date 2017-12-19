@@ -30,7 +30,6 @@ export default class Compile {
     // 绑定属性
     _bindAttrs () {
         const {_attrs, _elem} = this
-        console.log(_attrs)
         Object.keys(_attrs).forEach(attr =>{
             if (attr.includes('@')) {
             } else if (attr.includes('-')) {
@@ -65,11 +64,12 @@ export default class Compile {
             _elem.appendChild(child)
         })
     }
+
+    // 绑定指令
     _bindDirectives (attr, _elem) {
         const {_attrs, _vm} = this
         const exp = _attrs[attr]
         const type = attr.slice(1)
-        console.log(exp)
         compileUtil[type](_elem, _vm, exp)
     }
 }
@@ -90,7 +90,16 @@ const compileUtil = {
         this.bind(node, vm, exp, 'html')            
     },
     model (node, vm, exp) {
-        this.bind(node, vm, exp, 'model')            
+        this.bind(node, vm, exp, 'model')  
+        console.log(node, exp)
+
+        // 此处不能用change
+        // change触发的频率少于input，它只会在用户提交更改时触发。 -- 摘自MDN
+        // 换句话说如果value不变化，change就不会生效
+        node.addEventListener('input', e => {
+            let value = e.target.value
+            this.setVal(vm, exp, value)
+        })
     },
     getVal (vm, exp) {
         if (typeof exp === 'function') {
@@ -98,6 +107,9 @@ const compileUtil = {
         } else if (typeof exp === 'string') {
             return vm[exp]
         }
+    },
+    setVal (vm, exp, value) {
+        vm[exp] = value
     }
 }
 

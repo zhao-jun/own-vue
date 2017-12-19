@@ -13,7 +13,7 @@ export default class Watcher {
         const exp = this.exp
         // 当前订阅者指向自己，Dep.target即为一个订阅者watcher
         Dep.target = this;      
-        // 将结果添加到value
+        // 更新value的值
         if (typeof exp === 'function') {
             return exp.call(this.vm)
         } else if (typeof exp === 'string') {
