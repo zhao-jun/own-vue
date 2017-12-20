@@ -13,7 +13,6 @@ export default class MVVM {
         this._initComputed() 
         this._bindVM()  
         this._appendDom()    
-        
         return this._vm
     }
     // 数据深度监听
@@ -22,12 +21,19 @@ export default class MVVM {
     }
     // 将_vm与data绑定，对this进行代理
     _initVM () {
+        const {_config} = this;        
+        // 此处要注意每次返回都是新的_vm
         this._vm = new Proxy(this, {
             get: (target, key, receiver) => {
-                return this[key] || this._data[key] || this._computed[key]
+                if (Object.keys(this).includes(key)) return this[key]
+                if (Object.keys(this._data).includes(key)) return this._data[key]
+                // 如果是获取computed中的计算属性，那就要重新计算，获取data中数据，将dom订阅，关联了computed和dom
+                return _config.computed[key].call(target._vm)
             },  
             set: (target, key, value, receiver) => {
                 if (!this[key]) {
+                    // 如果data中数据发生改变，要对computed重新计算！
+                    // this._initComputed ()
                     return Reflect.set(this._data, key, value)
                 }
                 return Reflect.set(target, key, value)
@@ -39,10 +45,12 @@ export default class MVVM {
         const {_config, _vm} = this;
         this._computed = {}
         foreach(_config.computed, (key) => {
-            // 将计算的值放入)computed
+            // 将计算的值放入computed
             this._computed[key] = _config.computed[key].call(_vm)
             // 第三个参数为cb，通知时触发，触发后计算响应变化
-            new Watcher(_vm, _config.computed[key], val => this._computed[key] = val)
+            // new Watcher(_vm, _config.computed[key], val => {
+            //     this._computed[key] = val
+            // })
         })
     }
 

@@ -50,7 +50,7 @@ export default class Compile {
                     // 添加文本，使用createTextNode而不是innerHTML避免注入
                     // 文本可以是变量或者是字符串，此处应该增加区分
                     child = document.createTextNode('')
-                    compileUtil.text(child, _vm, () => children)
+                    compileUtil.text(child, _vm, children)
                     // child = document.createTextNode(children)
                     break
                 case 'function':
@@ -58,7 +58,6 @@ export default class Compile {
                     compileUtil.text(child, _vm, children)
                     break
                 default:
-                    console.log('default')
                     child = children
             }
             _elem.appendChild(child)
@@ -79,9 +78,12 @@ export default class Compile {
 const compileUtil = {
     bind (node, vm, exp, type) {
         const update = updater[type]
-
         update && update(node, this.getVal(vm, exp))
-        new Watcher(vm, exp, value => update && update(node, value))
+
+        // dom要和computed关联，在于new Watcher的时候计算属性要订阅相关的data
+        new Watcher(vm, exp, value => {
+            update && update(node, value)
+        })
     },
     text (node, vm, exp) {
         this.bind(node, vm, exp, 'text')
@@ -91,7 +93,6 @@ const compileUtil = {
     },
     model (node, vm, exp) {
         this.bind(node, vm, exp, 'model')  
-        console.log(node, exp)
 
         // 此处不能用change
         // change触发的频率少于input，它只会在用户提交更改时触发。 -- 摘自MDN

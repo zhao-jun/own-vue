@@ -22,8 +22,11 @@ export default class Dep {
     }
     // 通知所有订阅者
     notify (key) {
-        this.subs.get(key).forEach(sub => {
-            sub.update()
-        })
+        if (this.subs.get(key)) {
+            this.subs.get(key).forEach(sub => {
+                sub.update()
+            })
+        }
+
     }
 }

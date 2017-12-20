@@ -33,4 +33,3 @@ export const observe = (obj) => {
     })
     return Observer(obj)
 }
-

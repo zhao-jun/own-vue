@@ -1,6 +1,6 @@
 import MVVM from './mvvm'
 import {observe} from './observer'
-
+import Dep from './dep'
 const vm = new MVVM({
     el: 'body',
     data () {
@@ -15,22 +15,33 @@ const vm = new MVVM({
     // 动态计算尚未实现
     computed: {
         changeMsg () {
-            return this.msg + new Date()
+            return new Date() + this.msg
+        },
+        changeText () {
+            return new Date() + this.text
         }
     },
     render (createElement) {
         // 文本节点放在外面，这样可以和dom节点排序
         return createElement.div({
                 class: 'container',
-            }, () => this.changeMsg, createElement.p({
+            }, () => this.changeMsg
+            // 'changeMsg'
+            , createElement.p({
                 class: 'inner'
-            }, () => this.msg), createElement.input({
+            }, () => this.changeText), createElement.input({
                 '-model': 'msg'
             })
         )
     }
 })
 
-setTimeout(_ => {
-  vm.msg = 'hello world' + new Date()
-}, 1000)
+// setTimeout(_ => {
+//   vm.text = '1'
+// }, 1000)
+// setTimeout(_ => {
+//     vm.text = '123'
+// }, 1000)
+// setTimeout(_ => {
+//     vm.msg = 'hello world' + new Date()
+// }, 2000)
