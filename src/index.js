@@ -1,6 +1,5 @@
 import MVVM from './mvvm'
-import {observe} from './observer'
-import Dep from './dep'
+
 const vm = new MVVM({
     el: 'body',
     data () {
@@ -12,7 +11,6 @@ const vm = new MVVM({
     },
     // 计算属性是基于它们的依赖进行缓存的，所以不会根据new Date更新
     // 简单来说就是未对computed属性做监听处理
-    // 动态计算尚未实现
     computed: {
         changeMsg () {
             return new Date() + this.msg
@@ -36,9 +34,6 @@ const vm = new MVVM({
     }
 })
 
-// setTimeout(_ => {
-//   vm.text = '1'
-// }, 1000)
 // setTimeout(_ => {
 //     vm.text = '123'
 // }, 1000)

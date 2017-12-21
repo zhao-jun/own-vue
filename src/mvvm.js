@@ -1,4 +1,3 @@
-import Watcher from './watcher'
 import {observe} from './observer'
 import Compile from './compile'
 import {foreach} from './util'
