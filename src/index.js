@@ -1,4 +1,6 @@
 import MVVM from './mvvm'
+import {observe} from './observer'
+import Watcher from './watcher'
 
 const vm = new MVVM({
     el: 'body',
@@ -40,3 +42,14 @@ const vm = new MVVM({
 // setTimeout(_ => {
 //     vm.msg = 'hello world' + new Date()
 // }, 2000)
+
+let obj = observe({a: 1, b: 2})
+new Watcher(obj, 'a', val => console.log(val)
+)
+
+obj.a = 2
+obj.a = 3
+obj.a = 4
+
+vm.text = '123'
+vm.text = '1234'

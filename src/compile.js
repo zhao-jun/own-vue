@@ -82,6 +82,7 @@ const compileUtil = {
 
         // dom要和computed关联，在于new Watcher的时候计算属性要订阅相关的data
         new Watcher(vm, exp, value => {
+            console.log('更新了', value)
             update && update(node, value)
         })
     },

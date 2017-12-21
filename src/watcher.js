@@ -1,4 +1,5 @@
 import Dep from './dep'
+import pushWatcher from './batcher'
 
 // 订阅者，Observer和Compile之间通信的桥梁，不同属性就是不同的订阅者
 export default class Watcher {
@@ -25,8 +26,10 @@ export default class Watcher {
         return value
     }
     // 收到通知，更新
+    // 异步更新
     update () {
-        this.run()
+        // this.run()
+        pushWatcher(this)
     }
     run () {
         const val =this.get()
